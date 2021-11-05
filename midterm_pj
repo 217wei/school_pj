@@ -1,0 +1,317 @@
+#include<stdio.h>
+#include<conio.h>
+#include<time.h>
+#include <stdlib.h>
+
+void initial_table(int a[4][4])
+{
+    int i, j;
+
+    for(i = 0;i<4;i++){
+        printf("\n=========================\n"); //打印格子
+        for(j = 0;j<4;j++){
+            printf("|\t%d\t",a[i][j]);
+        }
+    }
+    printf("\n=========================\n");
+    printf("游戏开始！按h进入帮助界面\n");
+
+}
+
+void initial_hl(int a[4][4])  //给开始画面随机俩个二维数组赋值为2
+{
+    srand(time(NULL));  
+    int i, j, h, l;
+
+	for(i = 0;i < 2; i++){ 
+	h = rand()%4; //1, 2, 3,随机数
+    l = rand()%4;
+    a[h][l] = 2;
+	}
+    return;
+}
+
+void move(int a[4][4]) //原本將幫助頁面放在此函數裡面，但是發現若是點進幫助頁面會被隨機填入一個數字。
+{
+    char ch;
+    int i, j;
+    int k;
+    ch = getch();
+
+    switch(ch)  
+    {
+        case 'h' :
+            printf("=======幫助介面========\n");
+            printf("║\tw  : 向上合併\n");
+            printf("║\ts  : 向下合併\n");
+            printf("║\ta  : 向左合併\n");
+            printf("║\td  : 向右合併\n");
+            printf("║\th  :帮助界面\n");
+            printf("========5秒後自動關閉=======\n");
+            sleep(5);
+            break;
+
+        case 'w' :/*按下w向上移动*/
+        case 'W' :
+            for(j = 0;j < 4; j++){    /*向上聚集數字*/
+                for(i = 0; i < 4; i++){
+                    for(k = i + 1; k < 4; k++){
+                        if(a[i][j] == 0){
+                            a[i][j] = a[k][j];
+                            a[k][j] = 0;
+                        }
+                    }                 
+                }
+            }
+
+            for(j = 0; j < 4; j ++){   
+                for(i = 0; i < 4 ; i++){  //向上合併
+                    for(k = i + 1;k < 4; k++){
+                        if(a[k][j] == a[i][j]){
+                            a[i][j] += a[k][j];
+                            a[k][j] = 0;
+                            break; //不加break會一直相加
+                        }
+                        if(a[k][j] != a[i][j]){ //以免有隔著一個數字卻仍能相加的情形
+                            break;
+                        }
+                    }
+                }
+            }
+
+            for(j = 0;j < 4;j++){    /*向上聚集數字*/
+                for(i = 0; i < 4; i++){
+                    for(k = i + 1; k < 4; k++){
+                        if(a[i][j] == 0){
+                            a[i][j] = a[k][j];
+                            a[k][j] = 0;
+                        }
+                    }
+                }
+            }
+            new(a);
+            break;
+
+        case 's' :
+            for(j = 0;j < 4;j++){    /*向下聚集數字*/
+                for(i = 3 ;i >= 0; i--){
+                    for(k = i-1;k >= 0; k--){
+                        if(a[i][j] == 0){
+                            a[i][j] = a[k][j];
+                            a[k][j] = 0;
+                        }
+                    }
+                }
+            }
+            for(j = 0; j < 4; j ++){   
+                for(i = 3; i >= 0 ; i--){  //向下合併
+                    for(k = i - 1;k >= 0; k--){
+                        if(a[k][j] == a[i][j]){
+                            a[i][j] += a[k][j];
+                            a[k][j] = 0;
+                            break;
+                        }
+                        if(a[k][j] != a[i][j]){
+                            break;
+                        }                
+                    }
+                }
+            }
+            for(j = 0;j < 4;j++){    /*向下聚集數字*/
+                for(i = 3 ;i >= 0; i--){
+                    for(k = i-1;k >= 0; k--){
+                        if(a[i][j] == 0){
+                            a[i][j] = a[k][j];
+                            a[k][j] = 0;
+                        }
+                    }
+                }
+            }
+
+            new(a);
+            break;
+
+        case 'a' :
+            for(i = 0;i < 4; i++){    /*向左聚集數字*/
+                for(j = 0; j < 4; j++){
+                    for(k = j + 1; k < 4; k++){
+                        if(a[i][j] == 0){
+                            a[i][j] = a[i][k];
+                            a[i][k] = 0;
+                        }
+                    }                 
+                }
+            }
+
+            for(i = 0;i < 4; i++){   
+                for(j = 0; j < 4; j++){  //向左合併
+                    for(k = j + 1;k < 4; k++){
+                        if(a[i][k] == a[i][j]){
+                            a[i][j] += a[i][k];
+                            a[i][k] = 0;
+                            break;
+                        }
+                        if(a[k][j] != a[i][j]){
+                            break;
+                        }
+                    }
+                }
+            }
+
+            for(i = 0;i < 4; i++){    /*向左聚集數字*/
+                for(j = 0; j < 4; j++){
+                    for(k = j + 1; k < 4; k++){
+                        if(a[i][j] == 0){
+                            a[i][j] = a[i][k];
+                            a[i][k] = 0;
+                        }
+                    }                 
+                }
+            }
+            new(a);
+            break;
+
+        
+        case 'd' :
+            for(i = 0;i < 4; i++){    /*向右聚集數字*/
+                for(j = 3; j >= 0; j--){
+                    for(k = j - 1; k >= 0; k--){
+                        if(a[i][j] == 0){
+                            a[i][j] = a[i][k];
+                            a[i][k] = 0;
+                        }
+                    }                 
+                }
+            }
+
+            for(i = 0;i < 4; i++){   
+                for(j = 3; j >= 0; j--){  //向右合併
+                    for(k = j - 1; k >= 0; k--){
+                        if(a[i][k] == a[i][j]){
+                            a[i][j] += a[i][k];
+                            a[i][k] = 0;
+                            break;
+                        }
+                        if(a[k][j] != a[i][j]){
+                            break;
+                        }
+                    }
+                }
+            }
+
+            for(i = 0;i < 4; i++){    /*向右聚集數字*/
+                for(j = 3; j >= 0; j--){
+                    for(k = j - 1; k >= 0; k--){
+                        if(a[i][j] == 0){
+                            a[i][j] = a[i][k];
+                            a[i][k] = 0;
+                        }
+                    }                 
+                }
+            }
+            new(a);
+            break;
+
+        default :
+            printf("?無效輸入，按h打開幫助介面。");
+            sleep(2);
+            break;
+    }
+}
+
+void new(int a[4][4])//在0的地方放入2或4
+{
+    int i,j, n[8] = {2,2,2,2,2,2,2,4}, m;
+    srand(time(NULL));  
+		i = rand()%4;
+        j = rand()%4;
+        m = rand()%8;
+        while(1){
+            if(a[i][j] == 0){   //可以改成條件表達式
+                a[i][j] = n[m];
+                break;
+            }
+            else{
+                i = rand()%4;
+                j = rand()%4;
+            }
+        } 
+}
+
+int if_lose(int a[4][4]) //輸了的情況
+{
+    int if_lose = 1;
+    int i, j;
+    for(i = 0;i < 3; i++){
+        for(j = 0;j < 3;j++){
+            if(a[i][j] == 0){
+                if_lose = 0;
+                return 0;
+            }
+        }
+    }
+    if(if_lose == 1){  //若是沒有空項，看看還能不能合併
+        for(i = 0;i < 3; i++){
+            for(j = 0;j < 3;j++){
+                if(a[i][j] == a[i + 1][j]){
+                    if_lose = 0;
+                    break;
+                }
+                if(a[i][j] == a[i][j + 1]){
+                    if_lose = 0;
+                    break;
+                }
+            }
+            if(if_lose == 0){
+                break;
+            }
+        }
+    }
+    return if_lose;
+}
+
+void restart()
+{
+    char re;
+    printf("無法再移動，輸掉遊戲。\n是否再來一局？\n輸入y回到初始畫面，q離開遊戲\nwdad");
+    scanf("%c",&re);
+    if(re == 'y'){
+        main();
+    }
+    if(re == 'q'){
+        printf("结束游戏\n");
+        exit(0);
+    }
+    else{
+        printf("無效輸入");
+        restart();
+            }
+}
+
+int main(){
+    int a[4][4] = {0};
+    char input;
+
+
+    printf("是否开始游戏？请输入[y/n]\n");
+
+    scanf("%c",&input);
+
+    if(input == 'y'){
+        initial_hl(a);
+        while(if_lose(a) == 0){
+            initial_table(a);
+            move(a);
+            system("cls"); //系?清屏
+        }
+        restart(); //如果不能再移動則輸掉遊戲
+
+    }
+    else if(input == 'n'){
+        printf("结束游戏\n");
+    }
+    else
+    main(); 
+
+    return 0;
+}
