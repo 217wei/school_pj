@@ -1,0 +1,550 @@
+#include<stdio.h>
+#include<conio.h>
+#include<time.h>
+#include <stdlib.h>
+#include<stdbool.h>
+#include<math.h>
+int cnt = 0;
+int *c = &cnt; //多合
+
+int cb = 0;
+int *c_1 = &cb; //連擊
+int sum_c = 0;
+int c_sum_end = 0;
+int c_max = 0;
+
+int if_lose(int n,int m,int (*a)[100]) //輸了的情況
+{
+    int i, j;
+    for(i = 0;i < n; i++){
+        for(j = 0;j < m;j++){
+            if(a[i][j] == 0){
+                return 1;
+            }
+        }
+    }
+ //若是沒有空項，看看還能不能合併
+    for(i = 0;i < n; i++){
+        for(j = 0;j < m-1;j++){
+            if(a[i][j] == a[i][j+1]){
+                return 1;
+            }
+        }
+    }
+    for(j = 0;j < m;j++){
+        for(i = 0;i < n-1; i++){
+            if(a[i][j] == a[i+1][j]){
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+int win(int n,int m,int (*a)[100])  //若是偵測到2048則贏下遊戲
+{
+    int win = 0;
+    int i,j;
+    for(i = 0;i < n; i++){
+        for(j = 0;j < m; j++){
+            win = a[i][j] == 64?1:0;
+            if(win == 1){
+                break;
+            }
+        }
+        if(win == 1){
+            break;
+    }
+    return win;
+    }
+}
+void move(int n,int m,int (*a)[100],char ch) //玩家遊戲時輸入wasd控制移動方向，h跳出幫助介面
+{
+    int i, j;
+    int k;
+    cnt = 0;
+    switch(ch)  
+    {
+        case 'h' :
+        case 'H' :
+            printf("*********HELP CENTRE****************\n");
+            printf("**\tw  : 向上合併          **\n");
+            printf("**\ts  : 向下合併          **\n");
+            printf("**\ta  : 向左合併          **\n");
+            printf("**\td  : 向右合併          **\n");
+            printf("**\th  : 幫助介面          **\n");
+            printf("********DISAPPER AFTER 5 SECOND******\n");
+            sleep(5);
+            break;
+
+        case 'w' ://按下w向上移动
+        case 'W' :
+            for(j = 0;j < m; j++){    //向上聚集數字
+                for(i = 0; i < n; i++){
+                    for(k = i + 1; k < n; k++){
+                        if(a[i][j] == 0){
+                            a[i][j] = a[k][j];
+                            a[k][j] = 0;
+                        }
+                    }                 
+                }
+            }
+
+            for(j = 0; j < m; j++){   
+                for(i = 0; i < n ; i++){  //向上合併
+                    for(k = i + 1;k < n; k++){
+                        if(a[k][j] == a[i][j]){
+                            cnt++;
+                            a[i][j] += a[k][j];
+                            a[k][j] = 0;
+                            break; //不加break會一直相加
+                        }
+                        if(a[k][j] != a[i][j]){ //以免有隔著一個數字卻仍能相加的情形
+                            break;
+                        }
+                    }
+                }
+            }
+
+            for(j = 0;j < m;j++){    //向上聚集數字
+                for(i = 0; i < n; i++){
+                    for(k = i + 1; k < n; k++){
+                        if(a[i][j] == 0){
+                            a[i][j] = a[k][j];
+                            a[k][j] = 0;
+                        }
+                    }
+                }
+            }
+            //new(n,m,a);
+            break;
+
+        case 's' :
+        case 'S' :
+            for(j = 0;j < m;j++){    //向下聚集數字
+                for(i = n-1 ;i >= 0; i--){
+                    for(k = i-1;k >= 0; k--){
+                        if(a[i][j] == 0){
+                            a[i][j] = a[k][j];
+                            a[k][j] = 0;
+                        }
+                    }
+                }
+            }
+            for(j = 0; j < m; j++){   
+                for(i = n-1; i >= 0 ; i--){  //向下合併
+                    for(k = i - 1;k >= 0; k--){
+                        if(a[k][j] == a[i][j]){
+                            cnt++;
+                            a[i][j] += a[k][j];
+                            a[k][j] = 0;
+                            break;
+                        }
+                        if(a[k][j] != a[i][j]){
+                            break;
+                        }                
+                    }
+                }
+            }
+            for(j = 0;j < m;j++){    //向下聚集數字
+                for(i = n-1 ;i >= 0; i--){
+                    for(k = i-1;k >= 0; k--){
+                        if(a[i][j] == 0){
+                            a[i][j] = a[k][j];
+                            a[k][j] = 0;
+                        }
+                    }
+                }
+            }
+
+            //new(n,m,a);
+            break;
+
+        case 'a' :
+        case 'A' :
+            for(i = 0;i < n; i++){    //向左聚集數字
+                for(j = 0; j < m; j++){
+                    for(k = j + 1; k < m; k++){
+                        if(a[i][j] == 0){
+                            a[i][j] = a[i][k];
+                            a[i][k] = 0;
+                        }
+                    }                 
+                }
+            }
+
+            for(i = 0;i < n; i++){   
+                for(j = 0; j < m; j++){  //向左合併
+                    for(k = j + 1;k < m; k++){
+                        if(a[i][k] == a[i][j]){
+                            cnt++;
+                            a[i][j] += a[i][k];
+                            a[i][k] = 0;
+                            break;
+                        }
+                        if(a[k][j] != a[i][j]){
+                            break;
+                        }
+                    }
+                }
+            }
+
+            for(i = 0;i < n; i++){    //向左聚集數字
+                for(j = 0; j < m; j++){
+                    for(k = j + 1; k < m; k++){
+                        if(a[i][j] == 0){
+                            a[i][j] = a[i][k];
+                            a[i][k] = 0;
+                        }
+                    }                 
+                }
+            }
+            //new(n,m,a);
+            break;
+
+        
+        case 'd' :
+        case 'D' :
+            for(i = 0;i < n; i++){    //向右聚集數字
+                for(j = m-1; j >= 0; j--){
+                    for(k = j - 1; k >= 0; k--){
+                        if(a[i][j] == 0){
+                            a[i][j] = a[i][k];
+                            a[i][k] = 0;
+                        }
+                    }                 
+                }
+            }
+
+            for(i = 0;i < n; i++){   
+                for(j = m-1; j >= 0; j--){  //向右合併
+                    for(k = j - 1; k >= 0; k--){
+                        if(a[i][k] == a[i][j]){
+                            cnt++;
+                            a[i][j] += a[i][k];
+                            a[i][k] = 0;
+                            break;
+                        }
+                        if(a[k][j] != a[i][j]){
+                            break;
+                        }
+                    }
+                }
+            }
+
+            for(i = 0;i < n; i++){    //向右聚集數字
+                for(j = m-1; j >= 0; j--){
+                    for(k = j - 1; k >= 0; k--){
+                        if(a[i][j] == 0){
+                            a[i][j] = a[i][k];
+                            a[i][k] = 0;
+                        }
+                    }                 
+                }
+            }
+            //new(n,m,a);
+            break;
+
+        default :  //如果輸入wasdh以外的按鍵，則提醒
+            printf("?無效輸入，按h打開幫助介面。");
+            sleep(2);
+            break;
+    }
+}
+void move_a(int n,int m,int (*a)[100]) 
+{
+    char ch;
+    char ch_r[4] = {'w','a','s','d'};
+    int random;
+    srand(time(NULL));  
+	
+    int x;
+    ch = getch();
+    if(ch == 'g'||ch == 'G'){
+        printf("   _______Automatically move (x) time : \n");
+        printf("   _______please input the number : ");
+        scanf("%d",&x);
+        getchar();
+        for(int i = 0;i < x;i++){
+            random = rand()%4;
+            ch = ch_r[random];
+            move(n,m,a,ch);
+            initial_table(n,m,a);
+            sleep(1);
+            system("cls");
+            new(n,m,a);
+            if(if_lose(n,m,a)==0||win(n,m,a)==1){
+                return;
+            }
+        }  
+              
+    }
+    else{
+        move(n,m,a,ch);
+        return;
+    }
+}
+void game_start(int n,int m,int (*a)[100])
+{
+    int op_num = 0;
+
+    initial_hl(n,m,a);
+    while(if_lose(n,m,a)==1){
+        initial_table(n,m,a);
+        move_a(n,m,a);
+        /*ch = getch();
+        if(ch == 'g'||ch == 'G'){
+            printf("   _______Automatically move (x) time : \n");
+            printf("   _______please input the number : ");
+            scanf("%d ",&x);
+            char ch_r[4] = {'w','a','s','d'};
+            ch = ch_r[random];
+        }
+        move(n,m,a,ch);*/
+        if(win(n,m,a)==1){
+            initial_table(n,m,a);//
+            sleep(1);
+            printf("WIN");
+            file_operation(op_num);
+            break;
+        }
+        if(if_lose(n,m,a)==0){
+            initial_table(n,m,a);
+            printf("\t\tGAME OVER\n");
+            sleep(1);
+            break;
+        }
+        else{
+            op_num ++;
+            system("cls");
+            new(n,m,a);
+        }
+    }
+    if(if_lose(n,m,a)==0){
+        initial_table(n,m,a);
+        printf("\t\tGAME OVER\n");
+        sleep(1);
+        }
+    d_score(n,m,op_num);
+}
+void initial_table(int n,int m,int (*a)[100])
+{
+    int i, j;
+    int flag = 0; //檢查是否連擊
+
+    for(i = 0;i<n;i++){
+        printf("\n");
+        for(j = 0;j < m;j++){
+            printf("________");
+        }
+        printf("\n");
+        for(j = 0;j < m;j++){
+            printf(" |\t%d",(*(a+i))[j]);
+        }
+    }
+    printf("\n");
+    for(j = 0;j < m;j++){
+        printf("________");
+    }
+    if(*c>0){
+        flag = 1;
+        multiple();
+    }
+    else{
+        flag = 0;
+    }
+    combo(flag);
+    printf("\ncombo:%d\n",*c_1);
+    printf("combo score:%d",sum_c);
+
+    printf("\n");
+    printf("Click h to see more details.\n");
+}
+void initial_hl(int n,int m,int (*a)[100])  //给开始画面随机俩个二维数组赋值为2
+{
+    srand(time(NULL));  
+    int i, h, l;
+
+	for(i = 0;i < 2; i++){  //下標隨機填入
+	h = rand()%n; //1, 2, 3,随机数
+    l = rand()%m;
+    (*(a+h))[l] = 2;  //填入2
+	}
+    return;
+}
+void new(int n,int m,int (*a)[100])//在0的地方放入2或4
+{
+    int i,j, s[8] = {2,2,2,2,2,2,2,4}, k;
+    srand(time(NULL));  
+		i = rand()%n;
+        j = rand()%m;
+        k = rand()%8;
+        while(1){
+            if((*(a+i))[j] == 0){   //可以改成條件表達式
+                (*(a+i))[j] = s[k];
+                break;
+            }
+            else{
+                i = rand()%n;
+                j = rand()%m;
+            }
+        } 
+}
+void welcome()
+{
+    char input;
+    int n, m;
+    printf("\t\tStart the game?\n\nPlease input y(yes) or n(no)\n");
+    scanf(" %c",&input);
+    if(input == 'y'){
+        system("cls");
+        range();
+    }
+    else if(input == 'n'){
+        printf("\tGAME OVER\n");
+        exit(0);        
+    }
+    else{
+        printf("\t\t????\n");
+        welcome();
+    }
+}
+void range()
+{
+    int n, m;
+    char input;
+    printf("需要自定義棋盤大小嗎？(y/n)\n");
+    scanf(" %c",&input);
+    if(input == 'y'){
+        printf("input (n) and (m) with a space between for your table's range(n*m).\n");
+        scanf(" %d%d",&n,&m); //自定義
+    }
+    else if(input == 'n'){
+        n = 4;
+        m = 4;
+    }
+    else{
+        printf("\t\t????\n");
+        range();
+    }
+    element(n,m);
+}
+void element(int n,int m)
+{
+    int num[100][100] = {{0},{0},{0}};
+    char input;
+    printf("需要自定義2048元素嗎？(y/n)\n");
+    scanf(" %c",&input);
+    
+    if(input == 'y'){
+        printf("Input your customized elements with a space between them.\n");
+        create_element();
+    }
+    else if(input == 'n'){
+
+    }
+    else{
+        printf("\t\t????\n");
+        element(n,m);
+    }
+    game_start(n,m,num);
+}
+void create_element()
+{
+
+}
+void d_score(int n,int m,int op_num) //基礎分數
+{
+
+    int l = 11; //自定義數列長度，先設為11
+    int d_s = n*m*10*exp(l);
+    d_s = d_s - log2(op_num); //基礎分數
+    file_score(d_s);
+    printf("   _______basic score %d_______\n",d_s);
+    printf("   _______combo score is %d_______\n",c_sum_end);
+    printf("   _______combo max is %d_______\n",c_max);
+    printf("   _______combo max score is %d_______\n",combo_score(c_max));
+    printf("   _______Your score is %d_______\n",d_s+c_sum_end);
+
+    restart();
+}
+void combo(int flag)
+{
+    if(flag){
+        ++*c_1;
+        sum_c += combo_score(*c_1);
+        c_max = c_max>*c_1?c_max:*c_1;
+        c_sum_end+=sum_c;
+    }
+    else{
+        *c_1 = 0;
+        sum_c = 0;
+    }
+}
+int combo_score(int a)
+{
+    if(a == 1||a == 2){
+        return 1;
+    }
+    else{
+        return combo_score(a-2)+combo_score(a-1);
+    }
+}
+
+void multiple()
+{
+    printf("\t%d",*c);
+}
+void restart()
+{
+    char re;
+    printf("\n\t\t__RESTART?__\n\n\n input (y) bact to welcome or quit the game(q)\n");
+    cnt = 0;
+    cb = 0;
+    scanf(" %c",&re);
+    if(re == 'y'){
+        welcome();
+    }
+    if(re == 'q'){
+        printf("_______game is over._______\n");
+    }
+    else{
+        printf("\t?????\n");
+        restart();
+            }
+}
+void file_operation(int op_num)
+{
+    FILE *fp = NULL;
+ 
+    fp = fopen("C:\\tmp\\operate.txt", "w");
+    fprintf(fp, "%d\n",op_num);
+    fputs("This is testing for fputs...\n", fp);
+    fclose(fp);
+    return 0;
+
+}
+void file_score(int d_s)
+{
+    FILE *fs = NULL;
+ 
+    fs = fopen("C:\\tmp\\score.txt", "w");
+    fprintf(fs, "%d\n",d_s); //1基础分数
+    fprintf(fs, "%d\n",c_sum_end); //2连击奖励分数总和
+    //fprintf(fs, "%d\n",d_s); //3多合奖励分数总和
+    //fprintf(fs, "%d\n",d_s+c_sum_end+); //4游戏总得分
+    fprintf(fs, "%d\n",c_max); //5最高连击数
+    fprintf(fs, "%d\n",combo_score(c_max)); //6最高连击得分
+    //fprintf(fs, "%d\n",d_s); //7最高多合次数
+    //fprintf(fs, "%d\n",c_sum_end); //8最高多合得分”
+
+    //fputs("This is testing for fputs...\n", fs);
+    fclose(fs);
+    return 0;
+}
+int main(){
+    
+    welcome();
+
+
+    return 0;
+}
