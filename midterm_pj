@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include<stdbool.h>
 #include<math.h>
+#include <fcntl.h> //與創建文件有關
 int cnt = 0;
 int *c = &cnt; //多合
 
@@ -12,6 +13,10 @@ int *c_1 = &cb; //連擊
 int sum_c = 0;
 int c_sum_end = 0;
 int c_max = 0;
+struct elements{
+    int num;
+    char n[10];
+}el;
 
 int if_lose(int n,int m,int (*a)[100]) //輸了的情況
 {
@@ -415,6 +420,7 @@ void range()
     printf("需要自定義棋盤大小嗎？(y/n)\n");
     scanf(" %c",&input);
     if(input == 'y'){
+        system("cls");
         printf("input (n) and (m) with a space between for your table's range(n*m).\n");
         scanf(" %d%d",&n,&m); //自定義
     }
@@ -434,23 +440,66 @@ void element(int n,int m)
     char input;
     printf("需要自定義2048元素嗎？(y/n)\n");
     scanf(" %c",&input);
-    
     if(input == 'y'){
+        system("cls");
         printf("Input your customized elements with a space between them.\n");
         create_element();
+        game_start(n,m,num);
     }
     else if(input == 'n'){
-
+        game_start(n,m,num);
     }
     else{
         printf("\t\t????\n");
         element(n,m);
     }
-    game_start(n,m,num);
 }
 void create_element()
 {
-
+    char filename[20];
+    FILE *fp = NULL;
+    sleep(1);
+    printf("Create a new folder.\n");
+    sleep(1);
+    printf("name the new folder:???.txt\n"); 
+    scanf(" %s",filename);
+    /*int fd=creat(filename,O_RDONLY);
+    if(fd==-1){
+        printf("can not create the file\n");
+        create_element();
+    }
+    else{
+        system("cls");
+        printf("successful to create the file.\n");
+        close(fd);
+    }*/
+    fp=fopen(filename,"w");//（若文件存在）fopen可以自动创建文件
+    printf("\nHow many elements do you want to input?\n"); 
+    scanf(" %d",&el.num);
+    fp = fopen(filename, "w");
+    fprintf(fp, "%d\n",el.num);
+    fclose(fp);
+    printf("input you customized elements.\n");
+    for(int i = 0;i < el.num;i++){
+        scanf(" %s",el.n);
+        fp = fopen(filename, "a");
+        fprintf(fp, "%s ",el.n);
+        fclose(fp);
+    }
+    //fputs("This is testing for fputs...\n", fp);
+    char input;    
+    while(1){
+        printf("再創建一個文件嗎?\n");
+        scanf(" %c",&input);
+        if(input == 'y'){
+            create_element();
+            break;
+        }
+        if(input == 'n'){
+            break;
+        }        
+    } 
+    return;
 }
 void d_score(int n,int m,int op_num) //基礎分數
 {
@@ -520,8 +569,7 @@ void file_operation(int op_num)
     fprintf(fp, "%d\n",op_num);
     fputs("This is testing for fputs...\n", fp);
     fclose(fp);
-    return 0;
-
+    return;
 }
 void file_score(int d_s)
 {
