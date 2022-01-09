@@ -23,6 +23,7 @@ int flag_e = 0; //是否使用了自定義元素
 int *f_e = &flag_e;
 char f[10]; //file_name
 int max_num = 11;//最大數字
+int *m_n = &max_num;
 
 void elementlog(int a)
 {
@@ -100,16 +101,25 @@ void move(int n,int m,int (*a)[100],char ch) //玩家遊戲時輸入wasd控制�
     {
         case 'h' :
         case 'H' :
-            printf("*********HELP CENTRE****************\n");
-            printf("**\tw  : 向上合併          **\n");
-            printf("**\ts  : 向下合併          **\n");
-            printf("**\ta  : 向左合併          **\n");
-            printf("**\td  : 向右合併          **\n");
-            printf("**\th  : 幫助介面          **\n");
-            printf("********DISAPPER AFTER 5 SECOND******\n");
+            printf("\n_________HELP CENTRE_______________\n");
+            printf("__\tw  : merge up            __\n");
+            printf("__\ts  : merge down          __\n");
+            printf("__\ta  : merge left          __\n");
+            printf("__\td  : merge right         __\n");
+            printf("__\th  : HELP CENTRE         __\n");
+            printf("__\tg  : automatic move      __\n");
+            printf("__\tr  : restart             __\n");
+            printf("_________DISAPPER AFTER 5 SECOND____\n");
             sleep(5);
+            system("cls");
+            initial_table(n,m,a);
+            ch = getch();
+            move(n,m,a,ch);
             break;
-
+        case 'r' :
+        case 'R' :
+            restart();
+            break;
         case 'w' ://按下w向上移动
         case 'W' :
             file_operation(ch);
@@ -295,8 +305,10 @@ void move(int n,int m,int (*a)[100],char ch) //玩家遊戲時輸入wasd控制�
             break;
 
         default :  //如果輸入wasdh以外的按鍵，則提醒
-            printf("?無效輸入，按h打開幫助介面。");
+            printf("?????");
             sleep(2);
+            ch = getch();
+            move(n,m,a,ch);
             break;
     }
 }
@@ -306,7 +318,6 @@ void move_a(int n,int m,int (*a)[100])
     char ch_r[4] = {'w','a','s','d'};
     int random;
     srand(time(NULL));  
-	
     int x;
     ch = getch();
     if(ch == 'g'||ch == 'G'){
@@ -336,7 +347,6 @@ void move_a(int n,int m,int (*a)[100])
 void game_start(int n,int m,int (*a)[100])
 {
     int op_num = 0;
-
     initial_hl(n,m,a);
     while(if_lose(n,m,a)==1){
         initial_table(n,m,a);
@@ -372,17 +382,34 @@ void initial_table(int n,int m,int (*a)[100])
 {
     int i, j;
     int flag = 0; //檢查是否連擊
+    if(*c>0){
+        flag = 1;
+        m_max = m_max>*c?m_max:*c;
+    }
+    else{
+        flag = 0;
+    }
+    combo(flag);
     for(i = 0;i<n;i++){
         printf("\n");
         for(j = 0;j < m;j++){
             printf("________");
         }
+        if(i == 0){
+            printf("\tClick h to see more details.");
+        }
+        if(i == 1){
+            printf("\tmultiple:%d\t\t",*c);
+            printf("multiple score:%d",sum_m);
+        }
+        if(i == 2){
+            printf("\tcombo:%d",*c_1);
+            printf("\t\tcombo score:%d",sum_c);
+        }
         printf("\n");
         for(j = 0;j < m;j++){
             if(*f_e == 1){
                 elementlog((*(a+i))[j]);
-                //printf("3: %s\n",xx[0]);
-                //printf(" |\t%s",xx[0]);
             }
             else{
                 printf(" |\t%d",(*(a+i))[j]);
@@ -393,21 +420,7 @@ void initial_table(int n,int m,int (*a)[100])
     for(j = 0;j < m;j++){
         printf("________");
     }
-    if(*c>0){
-        flag = 1;
-        printf("\n multiple:%d\n",*c);
-        printf("multiple score:%d",sum_m);
-        m_max = m_max>*c?m_max:*c;
-    }
-    else{
-        flag = 0;
-    }
-    combo(flag);
-    printf("\ncombo:%d\n",*c_1);
-    printf("combo score:%d",sum_c);
-
     printf("\n");
-    printf("Click h to see more details.\n");
 }
 void initial_hl(int n,int m,int (*a)[100])  //给开始画面随机俩个二维数组赋值为2
 {
@@ -442,7 +455,6 @@ void new(int n,int m,int (*a)[100])//在0的地方放入2或4
 void welcome()
 {
     char input;
-    int n, m;
     printf("\t\tStart the game?\n\nPlease input y(yes) or n(no)\n");
     scanf(" %c",&input);
     if(input == 'y'){
@@ -462,7 +474,7 @@ void range()
 {
     int n, m;
     char input;
-    printf("需要自定義棋盤大小嗎？(y/n)\n");
+    printf("A custom board size?(y/n)\n");
     scanf(" %c",&input);
     if(input == 'y'){
         system("cls");
@@ -483,11 +495,10 @@ void element(int n,int m)
 {
     int num[100][100] = {{0},{0},{0}};
     char input;
-    printf("需要自定義2048元素嗎？(y/n)\n");
+    printf("A custom 2048 elements?(y/n)\n");
     scanf(" %c",&input);
     if(input == 'y'){
         system("cls");
-        printf("Input your customized elements with a space between them.\n");
         create_element();
         game_start(n,m,num);
     }
@@ -505,19 +516,20 @@ void create_element()
     char n[10];
     char filename[20];
     FILE *fp = NULL;
-    sleep(1);
     printf("Create a new folder.\n");
     sleep(1);
-    printf("name the new folder:???.txt\n"); 
-    scanf(" %s.txt",filename);
-
+    printf("name the new folder:\n"); 
+    scanf(" %s",filename);
     fp=fopen(filename,"w");//（若文件存在）fopen可以自动创建文件
-    printf("\nHow many elements do you want to input?\n"); 
+    printf("\nHow many elements do you want to create?\n"); 
     scanf(" %d",&num);
+    *m_n = num;
     fp = fopen(filename, "w");
     fprintf(fp, "%d\n",num);
     fclose(fp);
     printf("input you customized elements.\n");
+    sleep(1);
+    printf("Input your customized elements with a space between them.\n");
     for(int i = 0;i < num;i++){
         scanf(" %s",n);
         fp = fopen(filename, "a");
@@ -527,7 +539,8 @@ void create_element()
     //fputs("This is testing for fputs...\n", fp);
     char input;    
     while(1){
-        printf("再創建一個文件嗎?(y/n)\n");
+        system("cls");
+        printf("Create more files for your elements?(y/n)\n");
         scanf(" %c",&input);
         if(input == 'y'){
             create_element();
@@ -538,13 +551,12 @@ void create_element()
         }        
     }
     while(1){
-        printf("要使用自定義element??(y/n)\n");
+        printf("Do you want to use your own elements?(y/n)\n");
         scanf(" %c",&input);
         if(input == 'y'){ //要使用自定義
             *f_e = 1;
-            printf("輸入所要使用文件名\n");
+            printf("Please input file's name.\n");
             scanf(" %s",f);
-
             return;
         }
         if(input == 'n'){
@@ -591,7 +603,6 @@ int combo_score(int a)
         return combo_score(a-2)+combo_score(a-1);
     }
 }
-
 void multiple(int a)
 {
     int b = log2(a);
@@ -631,8 +642,8 @@ void restart()
 void file_operation(char ch)
 {
     FILE *fp = NULL;
- 
-    fp = fopen("C:\\tmp\\operate.txt", "a");
+    char filename[8] = "operate";
+    fp = fopen(filename, "a");
     fprintf(fp, "%c ",ch);
     //fputs("This is testing for fputs...\n", fp);
     fclose(fp);
@@ -641,8 +652,8 @@ void file_operation(char ch)
 void file_score(int d_s)
 {
     FILE *fs = NULL;
- 
-    fs = fopen("C:\\tmp\\score.txt", "w");
+    char filename[6] = "score";
+    fs = fopen(filename, "w");
     fprintf(fs, "%d\n",d_s); //1基础分数
     fprintf(fs, "%d\n",c_sum_end); //2连击奖励分数总和
     fprintf(fs, "%d\n",m_sum_end); //3多合奖励分数总和
@@ -650,15 +661,11 @@ void file_score(int d_s)
     fprintf(fs, "%d\n",c_max); //5最高连击数
     fprintf(fs, "%d\n",combo_score(c_max)); //6最高连击得分
     fprintf(fs, "%d\n",m_max); //7最高多合次数
-    fprintf(fs, "%d\n",sum_m); //8最高多合得分”
-
-    //fputs("This is testing for fputs...\n", fs);
+    fprintf(fs, "%d\n",sum_m); //8最高多合得分
     fclose(fs);
     return 0;
 }
-
 int main(){
-    
     welcome();
     return 0;
 }
